@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>בדיקת כשרות סרטוני יוטיוב - בנטפרי</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-title">
+        <span class="logo-dot"></span>
+        <span>בדיקת סרטוני YouTube</span>
+      </div>
+      <div class="header-subtitle">NetFree Checker</div>
+    </header>
+
+    <main class="main">
+      <section class="card card-status">
+        <div class="status-row">
+          <span class="status-label">סטטוס:</span>
+          <span id="statusText" class="status-value">סורק את העמוד...</span>
+        </div>
+        <div class="progress-wrapper">
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+          <div class="progress-text">
+            <span id="progressCount">0</span>/<span id="progressTotal">0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card-summary">
+        <div class="summary-item">
+          <div class="summary-label">נמצאו בעמוד</div>
+          <div class="summary-value" id="totalFound">0</div>
+        </div>
+        <div class="summary-item summary-open">
+          <div class="summary-label">סרטונים פתוחים</div>
+          <div class="summary-value" id="openCount">0</div>
+        </div>
+        <div class="summary-item summary-unknown">
+          <div class="summary-label">סרטונים שלא נבדקו</div>
+          <div class="summary-value" id="unknownCount">0</div>
+        </div>
+        <div class="summary-item summary-blocked">
+          <div class="summary-label">סרטונים חסומים</div>
+          <div class="summary-value" id="blockedCount">0</div>
+        </div>
+        <div class="summary-item summary-error">
+          <div class="summary-label">שגיאות בבדיקת הסרטון</div>
+          <div class="summary-value" id="errorCount">0</div>
+        </div>
+      </section>
+
+      <section class="lists-container">
+        <div class="card list-card">
+          <div class="list-header">
+            <div class="list-header-main">
+              <button class="collapse-btn" data-target="openList" aria-expanded="true" title="הצג/הסתר רשימה">
+                ▾
+              </button>
+              <h2>סרטונים פתוחים</h2>
+            </div>
+            <div class="btn-group">
+              <button id="copyOpenBtn" class="btn btn-secondary" disabled>
+                העתק ללוח
+              </button>
+              <button id="downloadOpenBtn" class="btn btn-secondary" disabled>
+                הורדת TXT
+              </button>
+            </div>
+          </div>
+          <ul id="openList" class="url-list"></ul>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <div class="list-header-main">
+              <button class="collapse-btn" data-target="unknownList" aria-expanded="true" title="הצג/הסתר רשימה">
+                ▾
+              </button>
+              <h2>סרטונים שעדיין לא נבדקו</h2>
+            </div>
+            <div class="btn-group">
+              <button id="copyUnknownBtn" class="btn btn-secondary" disabled>
+                העתק ללוח
+              </button>
+              <button id="downloadUnknownBtn" class="btn btn-secondary" disabled>
+                הורדת TXT
+              </button>
+            </div>
+          </div>
+          <ul id="unknownList" class="url-list"></ul>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <div class="list-header-main">
+              <button class="collapse-btn" data-target="blockedList" aria-expanded="true" title="הצג/הסתר רשימה">
+                ▾
+              </button>
+              <h2>סרטונים חסומים</h2>
+            </div>
+            <div class="btn-group">
+              <button id="copyBlockedBtn" class="btn btn-secondary" disabled>
+                העתק ללוח
+              </button>
+              <button id="downloadBlockedBtn" class="btn btn-secondary" disabled>
+                הורדת TXT
+              </button>
+            </div>
+          </div>
+          <ul id="blockedList" class="url-list"></ul>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <div class="list-header-main">
+              <button class="collapse-btn" data-target="errorList" aria-expanded="true" title="הצג/הסתר רשימה">
+                ▾
+              </button>
+              <h2>סרטונים עם שגיאות בבדיקה</h2>
+            </div>
+            <div class="btn-group">
+              <button id="copyErrorBtn" class="btn btn-secondary" disabled>
+                העתק ללוח
+              </button>
+              <button id="downloadErrorBtn" class="btn btn-secondary" disabled>
+                הורדת TXT
+              </button>
+            </div>
+          </div>
+          <ul id="errorList" class="url-list"></ul>
+        </div>
+      </section>
+
+      <section class="card card-footer">
+        <div class="footer-buttons">
+          <button id="rescanBtn" class="btn btn-primary">
+            הפעל סריקה מחדש
+          </button>
+          <button id="retryErrorsBtn" class="btn btn-secondary" disabled>
+            בדוק שוב סרטונים עם שגיאות
+          </button>
+          <button id="openWindowBtn" class="btn btn-secondary">
+            פתח בחלון קבוע
+          </button>
+        </div>
+        <div id="errorBox" class="error-box" hidden></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
