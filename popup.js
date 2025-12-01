@@ -1,4 +1,3 @@
-
 // קבוע: URL של ה-API
 var NETFREE_API_BASE = "https://www.google.com/~netfree/test-url?u=";
 
@@ -113,6 +112,18 @@ function setError(message) {
   }
 }
 
+// פונקציה לשינוי ויזואלי של הכותרת
+function setVisualStatus(finished) {
+  var header = document.querySelector(".header");
+  if (!header) return;
+  
+  if (finished) {
+    header.classList.add("finished");
+  } else {
+    header.classList.remove("finished");
+  }
+}
+
 function setProgress(current, total) {
   var progressBar = document.getElementById("progressBar");
   var progressCount = document.getElementById("progressCount");
@@ -189,6 +200,7 @@ function clearLists() {
 function runScan() {
   setError(null);
   clearLists();
+  setVisualStatus(false); // איפוס צבע כותרת
   setStatus("סורק את העמוד ומוצא קישורי YouTube...");
   setProgress(0, 0);
   setSummary(0, 0, 0, 0, 0);
@@ -311,7 +323,7 @@ function checkUrlsSequential(urls) {
 
   function next() {
     if (index >= total) {
-      setStatus("הבדיקה הסתיימה.");
+      setStatus("הבדיקה הסתיימה בהצלחה!");
       setSummary(totalUrlsCount, openUrls.length, unknownUrls.length, blockedUrls.length, errorUrls.length);
 
       var downloadOpenBtn = document.getElementById("downloadOpenBtn");
@@ -334,6 +346,12 @@ function checkUrlsSequential(urls) {
       if (copyErrorBtn && errorUrls.length > 0) copyErrorBtn.disabled = false;
       if (retryErrorsBtn && errorUrls.length > 0) retryErrorsBtn.disabled = false;
 
+      // 1. הפעלת צליל (מוטמע)
+      playCompleted();
+      
+      // 2. שינוי ויזואלי (צבע הכותרת)
+      setVisualStatus(true);
+      
       return;
     }
 
@@ -363,26 +381,25 @@ function checkSingleUrl(videoUrl) {
       return response.json();
     })
     .then(function (data) {
-      var isNetfree = data && data.netfree === true;
-      var isUnknownVideo = data && data.block === "unknown-video";
+      var blockStatus = data ? data.block : undefined;
 
-      if (isNetfree && !isUnknownVideo) {
-        if (!openSet.has(videoUrl)) {
-          openSet.add(videoUrl);
-          openUrls.push(videoUrl);
-          appendUrlToList("openList", videoUrl, "פתוח", "url-pill-open");
+      if (blockStatus === "deny") {
+        if (!blockedSet.has(videoUrl)) {
+          blockedSet.add(videoUrl);
+          blockedUrls.push(videoUrl);
+          appendUrlToList("blockedList", videoUrl, "חסום", "url-pill-blocked");
         }
-      } else if (isNetfree && isUnknownVideo) {
+      } else if (blockStatus === "unknown-video") {
         if (!unknownSet.has(videoUrl)) {
           unknownSet.add(videoUrl);
           unknownUrls.push(videoUrl);
           appendUrlToList("unknownList", videoUrl, "עדיין לא נבדק", "url-pill-unknown");
         }
       } else {
-        if (!blockedSet.has(videoUrl)) {
-          blockedSet.add(videoUrl);
-          blockedUrls.push(videoUrl);
-          appendUrlToList("blockedList", videoUrl, "חסום", "url-pill-blocked");
+        if (!openSet.has(videoUrl)) {
+          openSet.add(videoUrl);
+          openUrls.push(videoUrl);
+          appendUrlToList("openList", videoUrl, "פתוח", "url-pill-open");
         }
       }
 
@@ -416,6 +433,7 @@ function retryErrorChecks() {
   if (copyErrorBtn) copyErrorBtn.disabled = true;
 
   setError(null);
+  setVisualStatus(false);
   setStatus("מנסה שוב לבדוק את הקישורים עם שגיאה (" + urlsToRetry.length + " קישורים)...");
   setProgress(0, urlsToRetry.length);
   setSummary(totalUrlsCount, openUrls.length, unknownUrls.length, blockedUrls.length, 0);
@@ -502,4 +520,31 @@ function openInStandaloneWindow() {
   }, function () {
     window.close();
   });
+}
+
+function playCompleted() {
+  try {
+    // צליל "ביפ" נעים באמצעות Web Audio API
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    
+    var ctx = new AudioContext();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.1);
+    
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  } catch (e) {
+    console.error("Audio play failed:", e);
+  }
 }
